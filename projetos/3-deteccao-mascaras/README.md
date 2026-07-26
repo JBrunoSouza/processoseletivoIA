@@ -134,11 +134,11 @@ projetos/3-deteccao-mascaras/
 
 ### 1️⃣ Resumo da Abordagem
 
-**Hiperparâmetros de Fine-Tuning:** 
+* **Hiperparâmetros de Fine-Tuning:** 
 Épocas: 20
 Tamanho da imagem (imgsz): 640x640 pixels
 Batch size: 16
-**Desbalanceamento de classes:** 
+* **Desbalanceamento de classes:** 
 Observou-se um desbalanceamento acentuado no dataset (ex: 593 instâncias para with_mask contra apenas 19 instâncias para mask_weared_incorrect). O treinamento utilizou os pesos padrão do YOLO sem técnicas avançadas explícitas de balanceamento (como oversampling ou focal loss customizada), o que impactou diretamente a performance na classe minoritária.
 
 ### 2️⃣ Bibliotecas Utilizadas
@@ -154,15 +154,15 @@ A otimização consistiu na exportação do modelo PyTorch gerado (model.pt) par
 
 ### 4️⃣ Resultados Obtidos
 --------------------------------------------------
-Métricas Gerais:
+* Métricas Gerais:
 
 mAP50: 74.5%
 
 mAP50-95: 52.0%
 
 Box Precision (P): 0.763 | Recall (R): 0.751
---------------------------------------------------
-Métricas por Classe:
+
+* Métricas por Classe:
 
 with_mask (149 imagens / 593 instâncias):
 mAP50: 96.6% | mAP50-95: 67.1%
@@ -172,19 +172,20 @@ mAP50: 79.2% | mAP50-95: 51.8%
 
 mask_weared_incorrect (15 imagens / 19 instâncias):
 mAP50: 47.9% | mAP50-95: 37.2%
---------------------------------------------------
-Tamanho dos Arquivos:
+
+* Tamanho dos Arquivos:
 model.pt: ~5.2 MB (aproximado para pesos YOLO11n padrão)
+
 model.tflite: ~10.4 MB (tamanho padrão após conversão para formato TFLite)
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
-Dificuldades e Decisões: O principal desafio foi lidar com a escassez de dados da classe mask_weared_incorrect, que possui poucas amostras. Isso resultou em métricas inferiores para essa categoria específica. A escolha de 20 épocas em CPU equilibrou o tempo de processamento viável no ambiente de desenvolvimento com uma convergência razoável dos pesos.
+* Dificuldades e Decisões: O principal desafio foi lidar com a escassez de dados da classe mask_weared_incorrect, que possui poucas amostras. Isso resultou em métricas inferiores para essa categoria específica. A escolha de 20 épocas em CPU equilibrou o tempo de processamento viável no ambiente de desenvolvimento com uma convergência razoável dos pesos.
 
-Limitações: O modelo apresenta maior taxa de confusão ou perda de sensibilidade ao detectar máscaras usadas incorretamente, devido ao viés de dados do dataset.
+* Limitações: O modelo apresenta maior taxa de confusão ou perda de sensibilidade ao detectar máscaras usadas incorretamente, devido ao viés de dados do dataset.
 
 ### 6️⃣ Exemplo de Inferência
-
+```text 
 ============================================================
 Projeto 3 — Inferência com model.tflite (Edge AI)
 ============================================================
@@ -212,7 +213,7 @@ TOTAL                                       54
 
 ✅ Imagens anotadas salvas em: runs/detect/inferencia_exemplos/predicoes/
    (Abra essa pasta para verificar visualmente as bounding boxes preditas)
-
+```
 **Observações das imagens anotadas (runs/detect/inferencia_exemplos/predicoes/):**
 As caixas delimitadoras (bounding boxes) para rostos com máscara (with_mask) e sem máscara (without_mask) mostraram-se precisas e bem localizadas ao redor das faces. No entanto, a classe minoritária (mask_weared_incorrect) apresentou detecções mais esparsas e menor nível de confiança, havendo ocasionalmente confusão onde uma máscara posicionada incorretamente era ora ignorada, ora classificada como uso correto, refletindo diretamente as limitações métricas observadas na validação.
 
