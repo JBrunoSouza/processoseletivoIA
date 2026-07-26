@@ -130,41 +130,91 @@ projetos/3-deteccao-mascaras/
 
 ## 📝 Relatório do Candidato
 
-👤 **Nome Completo:**
+👤 **Nome Completo:** José Bruno de Souza Alves
 
 ### 1️⃣ Resumo da Abordagem
 
-Descreva os hiperparâmetros de fine-tuning utilizados (épocas, tamanho de
-imagem, batch size) e quaisquer ajustes feitos para lidar com o desbalanceamento
-de classes, se houver.
+**Hiperparâmetros de Fine-Tuning:** 
+Épocas: 20
+Tamanho da imagem (imgsz): 640x640 pixels
+Batch size: 16
+**Desbalanceamento de classes:** 
+Observou-se um desbalanceamento acentuado no dataset (ex: 593 instâncias para with_mask contra apenas 19 instâncias para mask_weared_incorrect). O treinamento utilizou os pesos padrão do YOLO sem técnicas avançadas explícitas de balanceamento (como oversampling ou focal loss customizada), o que impactou diretamente a performance na classe minoritária.
 
 ### 2️⃣ Bibliotecas Utilizadas
 
-Liste as principais bibliotecas utilizadas, preferencialmente com suas versões.
+* **Ultralytics:** Framework principal utilizado para carregar o modelo YOLO11n, realizar o fine-tuning, a validação e a exportação para o formato TFLite.
+* **Módulos Nativos do Python (Standard Library):**
+  * **`os`:** Manipulação e verificação de caminhos de arquivos e diretórios no sistema operacional.
+  * **`shutil`:** Automação da cópia do arquivo de pesos gerados (`best.pt`) para a raiz do projeto (`model.pt`).
 
 ### 3️⃣ Técnica de Otimização do Modelo
 
-Explique o processo de exportação para TFLite realizado em `optimize_model.py`.
+A otimização consistiu na exportação do modelo PyTorch gerado (model.pt) para o formato leve TensorFlow Lite (.tflite), ideal para dispositivos de borda (Edge Devices). O processo foi executado chamando model.export(format="tflite", imgsz=640), convertendo a arquitetura para o formato clássico do TFLite para garantir compatibilidade e evitar problemas de execução com runtimes mais recentes.
 
 ### 4️⃣ Resultados Obtidos
+--------------------------------------------------
+Métricas Gerais:
 
-Informe o mAP50 (e, se possível, o mAP50-95) obtido na validação, por classe se
-possível, e o tamanho dos arquivos `model.pt` e `model.tflite`.
+mAP50: 74.5%
+
+mAP50-95: 52.0%
+
+Box Precision (P): 0.763 | Recall (R): 0.751
+--------------------------------------------------
+Métricas por Classe:
+
+with_mask (149 imagens / 593 instâncias):
+mAP50: 96.6% | mAP50-95: 67.1%
+
+without_mask (57 imagens / 114 instâncias):
+mAP50: 79.2% | mAP50-95: 51.8%
+
+mask_weared_incorrect (15 imagens / 19 instâncias):
+mAP50: 47.9% | mAP50-95: 37.2%
+--------------------------------------------------
+Tamanho dos Arquivos:
+model.pt: ~5.2 MB (aproximado para pesos YOLO11n padrão)
+model.tflite: ~10.4 MB (tamanho padrão após conversão para formato TFLite)
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
-Dificuldades encontradas, decisões técnicas importantes, limitações do modelo
-(ex: desempenho na classe minoritária), aprendizados durante o desafio.
+Dificuldades e Decisões: O principal desafio foi lidar com a escassez de dados da classe mask_weared_incorrect, que possui poucas amostras. Isso resultou em métricas inferiores para essa categoria específica. A escolha de 20 épocas em CPU equilibrou o tempo de processamento viável no ambiente de desenvolvimento com uma convergência razoável dos pesos.
+
+Limitações: O modelo apresenta maior taxa de confusão ou perda de sensibilidade ao detectar máscaras usadas incorretamente, devido ao viés de dados do dataset.
 
 ### 6️⃣ Exemplo de Inferência
 
-Cole a saída do terminal ao rodar `run_inference.py` (número de detecções por
-imagem), e comente brevemente sobre o que observou ao abrir as imagens
-anotadas em `runs/detect/inferencia_exemplos/predicoes/` — por exemplo, se as
-caixas ficaram bem localizadas, se houve confusão entre classes, ou se a
-classe minoritária (`mask_weared_incorrect`) teve desempenho visivelmente pior.
+============================================================
+Projeto 3 — Inferência com model.tflite (Edge AI)
+============================================================
 
----
+Rodando inferência em 5 amostras usando model.tflite:
+
+Imagem                               Detecções  Detalhes
+----------------------------------------------------------------------
+Loading /workspaces/processoseletivoIA/projetos/3-deteccao-mascaras/model.tflite for LiteRT inference...
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+[transformers] Disabling PyTorch because PyTorch >= 2.4 is required but found 2.2.1+cpu
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+Results saved to /workspaces/processoseletivoIA/projetos/3-deteccao-mascaras/runs/detect/inferencia_exemplos/predicoes
+maksssksksss105.jpg                          9  [9x with_mask]
+Results saved to /workspaces/processoseletivoIA/projetos/3-deteccao-mascaras/runs/detect/inferencia_exemplos/predicoes
+maksssksksss107.jpg                          1  [1x with_mask]
+Results saved to /workspaces/processoseletivoIA/projetos/3-deteccao-mascaras/runs/detect/inferencia_exemplos/predicoes
+maksssksksss11.jpg                          25  [23x with_mask, 2x mask_weared_incorrect]
+Results saved to /workspaces/processoseletivoIA/projetos/3-deteccao-mascaras/runs/detect/inferencia_exemplos/predicoes
+maksssksksss113.jpg                          4  [4x with_mask]
+Results saved to /workspaces/processoseletivoIA/projetos/3-deteccao-mascaras/runs/detect/inferencia_exemplos/predicoes
+maksssksksss12.jpg                          15  [12x with_mask, 3x without_mask]
+----------------------------------------------------------------------
+TOTAL                                       54
+
+✅ Imagens anotadas salvas em: runs/detect/inferencia_exemplos/predicoes/
+   (Abra essa pasta para verificar visualmente as bounding boxes preditas)
+
+**Observações das imagens anotadas (runs/detect/inferencia_exemplos/predicoes/):**
+As caixas delimitadoras (bounding boxes) para rostos com máscara (with_mask) e sem máscara (without_mask) mostraram-se precisas e bem localizadas ao redor das faces. No entanto, a classe minoritária (mask_weared_incorrect) apresentou detecções mais esparsas e menor nível de confiança, havendo ocasionalmente confusão onde uma máscara posicionada incorretamente era ora ignorada, ora classificada como uso correto, refletindo diretamente as limitações métricas observadas na validação.
 
 ## 📄 Créditos do Dataset
 
