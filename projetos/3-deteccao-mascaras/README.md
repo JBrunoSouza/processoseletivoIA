@@ -162,6 +162,7 @@ mAP50-95: 52.0%
 
 Box Precision (P): 0.763 | Recall (R): 0.751
 
+
 * Métricas por Classe:
 
 with_mask (149 imagens / 593 instâncias):
@@ -172,6 +173,7 @@ mAP50: 79.2% | mAP50-95: 51.8%
 
 mask_weared_incorrect (15 imagens / 19 instâncias):
 mAP50: 47.9% | mAP50-95: 37.2%
+
 
 * Tamanho dos Arquivos:
 model.pt: ~5.2 MB (aproximado para pesos YOLO11n padrão)
